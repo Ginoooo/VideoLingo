@@ -114,7 +114,7 @@ def find_and_check_config_path(dubbing_character):
     parent_dir = current_dir.parent
 
     # Find the GPT-SoVITS-v2 directory
-    gpt_sovits_dir = next((d for d in parent_dir.iterdir() if d.is_dir() and d.name.startswith('GPT-SoVITS-v2')), None)
+    gpt_sovits_dir = next((d for d in parent_dir.iterdir() if d.is_dir() and d.name.startswith('GPT-SoVITS-v')), None)
 
     if gpt_sovits_dir is None:
         raise FileNotFoundError("GPT-SoVITS-v2 directory not found in the parent directory.")
