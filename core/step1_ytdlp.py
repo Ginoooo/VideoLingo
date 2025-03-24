@@ -17,13 +17,24 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time
     allowed_resolutions = ['360', '1080', 'best']
     if resolution not in allowed_resolutions:
         resolution = '360'
-    
+
     os.makedirs(save_path, exist_ok=True)
+
+    # 根据操作系统设置浏览器类型
+    if sys.platform.startswith('win'):
+        browser_config = ('firefox', None, None, None)
+    elif sys.platform == 'darwin':
+        browser_config = ('chrome', None, None, None)
+    else:
+        # Linux等其他系统默认使用chrome
+        browser_config = ('chrome', None, None, None)
+
     ydl_opts = {
         'format': 'bestvideo+bestaudio/best' if resolution == 'best' else f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]',
         'outtmpl': f'{save_path}/%(title)s.%(ext)s',
         'noplaylist': True,
         'writethumbnail': True,
+        'cookiesfrombrowser': browser_config,  # 使用动态设置的浏览器配置
         'postprocessors': [{
             'key': 'FFmpegThumbnailsConvertor',
             'format': 'jpg',
@@ -41,7 +52,7 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time
     from yt_dlp import YoutubeDL
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
-    
+
     # Check and rename files after download
     for file in os.listdir(save_path):
         if os.path.isfile(os.path.join(save_path, file)):
@@ -54,11 +65,11 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time
     if cutoff_time:
         print(f"Cutoff time: {cutoff_time}, Now checking video duration...")
         video_file = find_video_files(save_path)
-        
+
         # Use librosa to get video duration
         import librosa
         duration = librosa.get_duration(filename=video_file)
-        
+
         if duration > cutoff_time:
             print(f"Video duration ({duration:.2f}s) is longer than cutoff time. Cutting the video...")
             file_name, file_extension = os.path.splitext(video_file)
@@ -70,7 +81,7 @@ def download_video_ytdlp(url, save_path='output', resolution='1080', cutoff_time
                 print(line, end='')
             process.wait()
             print(f"✅ Video has been cut to the first {cutoff_time} seconds")
-            
+
             # Remove the original file and rename the trimmed file
             os.remove(video_file)
             os.rename(trimmed_file, video_file)
