@@ -34,7 +34,7 @@ def gpt_sovits_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, prom
     
     payload = {
         'text': text,
-        'text_lang': text_lang,
+        'text_lang': text_lang, # all_zh
         'ref_audio_path': str(ref_audio_path),
         'prompt_lang': prompt_lang,
         'prompt_text': prompt_text,
@@ -48,12 +48,14 @@ def gpt_sovits_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, prom
             full_save_path.write_bytes(response.content)
             rprint(f"[bold green]Audio saved successfully:[/bold green] {full_save_path}")
         return True
+    
+    print("Requesting TTS...", payload)
 
     response = requests.post('http://127.0.0.1:9880/tts', json=payload)
     if response.status_code == 200:
         return save_audio(response, save_path, current_dir)
     else:
-        rprint(f"[bold red]TTS request failed, status code:[/bold red] {response.status_code}")
+        rprint(f"[bold red]TTS request failed, status code:[/bold red] {response.status_code, response.reason}")
         return False
 
 def gpt_sovits_tts_for_videolingo(text, save_as, number, task_df):
