@@ -1,8 +1,8 @@
 import pandas as pd
 import datetime
 import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import re
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from core.ask_gpt import ask_gpt
 from core.prompts_storage import get_subtitle_trim_prompt
 from rich import print as rprint
@@ -17,7 +17,111 @@ speed_factor = load_key("speed_factor")
 TRANS_SUBS_FOR_AUDIO_FILE = 'output/audio/trans_subs_for_audio.srt'
 SRC_SUBS_FOR_AUDIO_FILE = 'output/audio/src_subs_for_audio.srt'
 SOVITS_TASKS_FILE = 'output/audio/tts_tasks.xlsx'
+SUBTITLE_FILES = [TRANS_SUBS_FOR_AUDIO_FILE, 'trans.srt']  # Files to process
 ESTIMATOR = None
+
+# Define replacement dictionary
+REPLACEMENTS = {
+    'NVIDIA': '英伟达',
+    'CUDA': '酷的',
+    'AI': '<zh>AI<zh>',
+    'ZEN': '真',
+    'Intel': '英特尔',
+    'Ryzen': '锐龙',
+    'SUPER': 'Super',
+    'MAX': 'Max',
+    'TI': 'Ti',
+    'PRO': 'Pro',
+    'PLUS': 'Plus',
+    'ULTRA': 'Ultra',
+    'TITAN': 'Titan',
+    'QUADRO': 'Quadro',
+    'CORE': 'Core',
+    '1050': '<number>1050<number>',
+    '1060': '<number>1060<number>',
+    '1070': '<number>1070<number>',
+    '1080': '<number>1080<number>',
+    '2050': '<number>2050<number>',
+    '2060': '<number>2060<number>',
+    '2070': '<number>2070<number>',
+    '2080': '<number>2080<number>',
+    '3050': '<number>3050<number>',
+    '3060': '<number>3060<number>',
+    '3070': '<number>3070<number>',
+    '3080': '<number>3080<number>',
+    '3090': '<number>3090<number>',
+    '4050': '<number>4050<number>',
+    '4060': '<number>4060<number>',
+    '4070': '<number>4070<number>',
+    '4080': '<number>4080<number>',
+    '4090': '<number>4090<number>',
+    '1440': '<number>1440<number>',
+    '3840': '<number>3840<number>',
+    '2160': '<number>2160<number>',
+    '2077': '<number>2077<number>',
+    'M1'  : 'M<number>1<number>',
+    'M2'  : 'M<number>2<number>',
+    'M3'  : 'M<number>3<number>',
+    'M4'  : 'M<number>4<number>',
+    'M5'  : 'M<number>5<number>',
+    'M6'  : 'M<number>6<number>',
+    'M.1'  : 'M<number>1<number>',
+    'M.2'  : 'M<number>2<number>',
+    'M.3'  : 'M<number>3<number>',
+    'M.4'  : 'M<number>4<number>',
+    'M.5'  : 'M<number>5<number>',
+    'M.6'  : 'M<number>6<number>',
+    '860M'  : '<number>860<number>M',
+    '880M'  : '<number>880<number>M',
+    '890M'  : '<number>890<number>M',
+    '395'  : '<number>395<number>',
+    '390'  : '<number>390<number>',
+    '385'  : '<number>385<number>',
+    '370'  : '<number>370<number>',
+    '365'  : '<number>365<number>',
+    'Z13'  : 'Z<number>13<number>',
+    'Z14'  : 'Z<number>14<number>',
+    'X3D'  : '叉<number>3<number>滴',
+    # AMD锐龙型号
+    '9950'  : '<number>9950<number>',
+    '9900'  : '<number>9900<number>',
+    '9800'  : '<number>9800<number>',
+    '9700'  : '<number>9700<number>',
+    '9600'  : '<number>9600<number>',
+    '5600'  : '<number>5600<number>',
+    # intel型号
+    'i9'  : 'i<number>9<number>',
+    'i7'  : 'i<number>7<number>',
+    'i5'  : 'i<number>5<number>',
+    'i3'  : 'i<number>3<number>',
+}
+
+def replace_in_subtitle_files():
+    """Replace words in all specified subtitle files"""
+    for subtitle_file in SUBTITLE_FILES:
+        if not os.path.exists(subtitle_file):
+            continue
+            
+        with open(subtitle_file, 'r', encoding='utf-8') as file:
+            content = file.read()
+        
+        # Skip if already processed
+        if "#REPLACED#" in content:
+            rprint(Panel(f"{subtitle_file} already processed, skipping", title="Info", border_style="blue"))
+            continue
+            
+        # Perform all replacements
+        for key, value in REPLACEMENTS.items():
+            pattern = re.compile(r'\b' + re.escape(key) + r'\b', flags=re.IGNORECASE)
+            content = pattern.sub(value, content)
+            
+        # Add processed marker
+        content += "\n#REPLACED#\n"
+        
+        with open(subtitle_file, 'w', encoding='utf-8') as file:
+            file.write(content)
+            
+        rprint(Panel(f"Processed replacements in {subtitle_file}", title="Success", border_style="green"))
 
 def check_len_then_trim(text, duration):
     global ESTIMATOR
@@ -130,13 +234,12 @@ def process_srt():
     df['start_time'] = df['start_time'].apply(lambda x: x.strftime('%H:%M:%S.%f')[:-3])
     df['end_time'] = df['end_time'].apply(lambda x: x.strftime('%H:%M:%S.%f')[:-3])
 
-    ##! No longer perform secondary trim
-    # check and trim subtitle length, for twice to ensure the subtitle length is within the limit, 允许tolerance
-    # df['text'] = df.apply(lambda x: check_len_then_trim(x['text'], x['duration']+x['tolerance']), axis=1)
-
     return df
 
 def gen_audio_task_main():
+    # First process replacements in subtitle files
+    replace_in_subtitle_files()
+    
     if os.path.exists(SOVITS_TASKS_FILE):
         rprint(Panel(f"{SOVITS_TASKS_FILE} already exists, skip.", title="Info", border_style="blue"))
     else:
