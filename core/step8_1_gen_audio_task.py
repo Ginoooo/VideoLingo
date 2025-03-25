@@ -110,14 +110,33 @@ def replace_in_subtitle_files():
             rprint(Panel(f"{subtitle_file} already processed, skipping", title="Info", border_style="blue"))
             continue
             
-        # Perform all replacements
-        for key, value in REPLACEMENTS.items():
-            pattern = re.compile(r'\b' + re.escape(key) + r'\b', flags=re.IGNORECASE)
-            content = pattern.sub(value, content)
-            
-        # Add processed marker
-        content += "\n#REPLACED#\n"
-        
+        # Split into blocks and process each one
+        blocks = content.strip().split('\n\n')
+        processed_blocks = []
+
+        for block in blocks:
+            lines = [line.strip() for line in block.split('\n') if line.strip()]
+            if len(lines) < 3:  # Skip malformed blocks
+                processed_blocks.append(block)
+                continue
+
+            # Keep number and timestamp lines as-is
+            number_line = lines[0]
+            time_line = lines[1]
+            text_lines = lines[2:]
+
+            # Process only the text content
+            text_content = ' '.join(text_lines)
+            for key, value in REPLACEMENTS.items():
+                pattern = re.compile(r'\b' + re.escape(key) + r'\b', flags=re.IGNORECASE)
+                text_content = pattern.sub(value, text_content)
+                
+            # Rebuild the block
+            processed_block = f"{number_line}\n{time_line}\n{text_content}"
+            processed_blocks.append(processed_block)
+
+        # Add processed marker and join blocks
+        content = '\n\n'.join(processed_blocks) + "\n\n#REPLACED#\n"
         with open(subtitle_file, 'w', encoding='utf-8') as file:
             file.write(content)
             
