@@ -6,9 +6,9 @@ display_language: "zh-CN"
 
 # API settings
 api:
-  key: 'YOUR_API_KEY'
-  base_url: 'https://api.302.ai'
-  model: 'deepseek-v3'
+  key: 'sk-fludiiqghdzrsmjvkrqwnfxxzdififyfkutevhqhrsszbpak'
+  base_url: 'https://api.siliconflow.cn/'
+  model: 'deepseek-ai/DeepSeek-V3'
 
 # Language settings, written into the prompt, can be described in natural language
 target_language: '简体中文'
@@ -56,7 +56,7 @@ pause_before_translate: false
 
 ## ======================== Dubbing Settings ======================== ##
 # TTS selection [sf_fish_tts, openai_tts, gpt_sovits, azure_tts, fish_tts, edge_tts, custom_tts]
-tts_method: 'f5tts'
+tts_method: 'gpt_sovits'
 
 # SiliconFlow FishTTS
 sf_fish_tts:
@@ -98,8 +98,8 @@ edge_tts:
 
 # SoVITS configuration
 gpt_sovits:
-  character: 'Huanyuv2'
-  refer_mode: 3
+  character: 'kunkunpro'
+  refer_mode: 1
 
 f5tts:
   302_api: 'YOUR_302_API_KEY'
