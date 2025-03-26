@@ -17,16 +17,16 @@ speed_factor = load_key("speed_factor")
 TRANS_SUBS_FOR_AUDIO_FILE = 'output/audio/trans_subs_for_audio.srt'
 SRC_SUBS_FOR_AUDIO_FILE = 'output/audio/src_subs_for_audio.srt'
 SOVITS_TASKS_FILE = 'output/audio/tts_tasks.xlsx'
-SUBTITLE_FILES = [TRANS_SUBS_FOR_AUDIO_FILE, 'trans.srt']  # Files to process
+SUBTITLE_FILES = [TRANS_SUBS_FOR_AUDIO_FILE, SRC_SUBS_FOR_AUDIO_FILE, 'output/trans.srt']  # Files to process
 ESTIMATOR = None
 
 # Define replacement dictionary
 REPLACEMENTS = {
-    'NVIDIA': '英伟达',
-    'CUDA': '酷的',
+    'NVIDIA': '<zh>NVIDIA<zh>',
+    'CUDA': '<zh>CUDA<zh>',
     'AI': '<zh>AI<zh>',
-    'ZEN': '真',
-    'Intel': '英特尔',
+    'ZEN': '<zh>ZEN<zh>',
+    'Intel': '<zh>Intel<zh>',
     'Ryzen': '锐龙',
     'SUPER': 'Super',
     'MAX': 'Max',
@@ -95,7 +95,9 @@ REPLACEMENTS = {
     '365'  : '<number>365<number>',
     'Z13'  : 'Z<number>13<number>',
     'Z14'  : 'Z<number>14<number>',
-    'X3D'  : '叉<number>3<number>滴',
+    'X3D'  : '<zh>X3D<zh>',
+    '3D'  : '<number>3<number>D',
+    '2D'  : '<number>2<number>D',
     # AMD锐龙型号
     '9950'  : '<number>9950<number>',
     '9900'  : '<number>9900<number>',
@@ -109,6 +111,20 @@ REPLACEMENTS = {
     'i5'  : 'i<number>5<number>',
     'i3'  : 'i<number>3<number>',
 }
+
+def replace_non_tag_text(text):
+    """只在非标签内容部分进行关键词替换"""
+    parts = re.split(r'(<[^>]+>)', text)  # 分割标签和普通内容
+    for i in range(len(parts)):
+        if i % 2 == 0:  # 仅处理非标签部分（偶数索引）
+            for key, value in REPLACEMENTS.items():
+                parts[i] = re.sub(
+                    rf'\b{re.escape(key)}\b', 
+                    value, 
+                    parts[i], 
+                    flags=re.IGNORECASE
+                )
+    return ''.join(parts)
 
 def replace_in_subtitle_files():
     """Replace words in all specified subtitle files"""
@@ -141,9 +157,10 @@ def replace_in_subtitle_files():
 
             # Process only the text content
             text_content = ' '.join(text_lines)
-            for key, value in REPLACEMENTS.items():
-                pattern = re.compile(r'\b' + re.escape(key) + r'\b', flags=re.IGNORECASE)
-                text_content = pattern.sub(value, text_content)
+            text_content = replace_non_tag_text(text_content)  # 使用新方法替换
+            # for key, value in REPLACEMENTS.items():
+            #     pattern = re.compile(r'\b' + re.escape(key) + r'\b', flags=re.IGNORECASE)
+            #     text_content = pattern.sub(value, text_content)
                 
             # Rebuild the block
             processed_block = f"{number_line}\n{time_line}\n{text_content}"
@@ -284,3 +301,4 @@ def gen_audio_task_main():
 
 if __name__ == '__main__':
     gen_audio_task_main()
+
