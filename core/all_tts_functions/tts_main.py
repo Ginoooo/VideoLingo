@@ -4,6 +4,7 @@ from rich import print as rprint
 from pydub import AudioSegment
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+from core.all_tts_functions.cosy_voice_tts import cosy_voice_tts_for_videolingo
 from core.config_utils import load_key
 from core.all_whisper_methods.audio_preprocess import get_audio_duration
 from core.all_tts_functions.gpt_sovits_tts import gpt_sovits_tts_for_videolingo
@@ -53,6 +54,8 @@ def tts_main(text, save_as, number, task_df):
                 openai_tts(text, save_as)
             elif TTS_METHOD == 'gpt_sovits':
                 gpt_sovits_tts_for_videolingo(text, save_as, number, task_df)
+            elif TTS_METHOD == 'cosyvoice2_tts':
+                cosy_voice_tts_for_videolingo(text, save_as, number, task_df)
             elif TTS_METHOD == 'fish_tts':
                 fish_tts(text, save_as)
             elif TTS_METHOD == 'azure_tts':

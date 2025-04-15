@@ -2,6 +2,34 @@ from pathlib import Path
 from rich import print as rprint
 import requests
 
+def cosyvoice_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, prompt_text):
+    current_dir = Path.cwd()
+    
+    payload = {
+        'text': text,
+        # 'role': "中文女",
+        # # role: '中文女', '中文男', '日语男', '粤语女', '英文女', '英文男', '韩语女'
+        'reference_audio': str('./asset/kunkunpro_全民制作人们大家好，我是练习时长两年半的个人练习生蔡徐坤.wav'),
+        'reference_text': prompt_text,
+    }
+
+    def save_audio(response, save_path, current_dir):
+        if save_path:
+            full_save_path = current_dir / save_path
+            full_save_path.parent.mkdir(parents=True, exist_ok=True)
+            full_save_path.write_bytes(response.content)
+            rprint(f"[bold green]Audio saved successfully:[/bold green] {full_save_path}")
+        return True
+    
+    print("Requesting TTS...", payload)
+
+    response = requests.post('http://127.0.0.1:9233/clone_eq', data=payload, timeout=3600)
+    if response.status_code == 200:
+        return save_audio(response, save_path, current_dir)
+    else:
+        rprint(f"[bold red]TTS request failed, status code:[/bold red] {response.status_code, response.reason}")
+        return False
+
 def gpt_sovits_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, prompt_text):
     current_dir = Path.cwd()
     
@@ -73,7 +101,7 @@ prompt_lang = 'zh'
 print(f"Detected language: {prompt_lang}")
 prompt_text = content
 
-success = gpt_sovits_tts("<zh>9070<zh>XT是非常好4080super的一款<zh>NVIDIA<zh> GPU，Micro Center还有库存，<zh>CUDA<zh>也是", "zh", "temp/1.wav", ref_audio_path, prompt_lang, prompt_text)
-# success = gpt_sovits_tts("这 1500 美元差价包含 M<zh>3<zh> Ultra 芯片", "zh", "temp/1.wav", ref_audio_path, prompt_lang, prompt_text)
+success = cosyvoice_tts(" AMD急需FSR4打一场漂亮Ai翻身仗", "zh", "temp/1.wav", ref_audio_path, prompt_lang, prompt_text)
+# success = gpt_sovits_tts("这 1500 美元差价包含 M<zh>3<zh> Ultra  芯片", "zh", "temp/1.wav", ref_audio_path, prompt_lang, prompt_text)
 
 print("ret = ", success)

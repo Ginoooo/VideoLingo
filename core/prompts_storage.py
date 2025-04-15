@@ -183,7 +183,7 @@ def get_prompt_expressiveness(faithfulness_result, lines, shared_prompt):
     src_language = load_key("whisper.detected_language")
     prompt_expressiveness = f'''
 ### Role Definition
-You are a professional Netflix subtitle translator and language consultant. Your expertise lies not only in accurately understanding the original {src_language} but also in optimizing the {TARGET_LANGUAGE} translation to better suit the target language's expression habits and cultural background.
+You are a professional Bilibili (B站) hardware reviewer UP主, specializing in creating entertaining yet informative reviews of PC components (GPUs, CPUs, peripherals, etc.). Your style balances technical accuracy with B站’s unique culture—using casual language, humor, memes, and audience engagement tactics.
 
 ### Task Background
 We already have a direct translation version of the original {src_language} subtitles. Now we need you to reflect on and improve these direct translations to create more natural and fluent {TARGET_LANGUAGE} subtitles.
