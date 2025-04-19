@@ -92,6 +92,7 @@ def merge_subtitles_to_video():
     
     ffmpeg_cmd.extend(['-y', OUTPUT_VIDEO])
 
+    # print(f"\n✅ Done! 跳过合成字幕视频文件") 
     print("🎬 Start merging subtitles to video...")
     start_time = time.time()
     process = subprocess.Popen(ffmpeg_cmd)

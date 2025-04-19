@@ -9,6 +9,101 @@ import requests
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key
 
+CosyVoiceServer = "10.19.233.185"
+
+TERM_REPLACEMENTS = {
+    # CPU 型号
+    "395": "三九五",
+    "390": "三九零",
+    "385": "三八五",
+    "380": "三八零",
+    "375": "三七五",
+    "370": "三七零",
+    "365": "三六五",
+    "360": "三六零",
+    "355": "三五五",
+    "350": "三五零",
+    "345": "三四五",
+    "340": "三四零",
+    
+    "285": "二八五",
+    "280": "二八零",
+    "275": "二七五",
+    "270": "二七零",
+    "265": "二六五",
+    "260": "二六零",
+    "255": "二五五",
+    "250": "二五零",
+    "245": "二四五",
+    "240": "二四零",
+    "235": "二三五",
+    "230": "二三零",
+    "225": "二二五",
+    "220": "二二零",
+    "215": "二一五",
+    "210": "二一零",
+    "205": "二零五",
+    "200": "二零零",
+    
+    
+    "9070": "九零七零",
+    "9060": "九零六零",
+    "9050": "九零五零",
+    
+    "8090": "八零九零",
+    "8080": "八零八零",
+    "8070": "八零七零",
+    "8060": "八零六零",
+    "8050": "八零五零",
+    
+    "7090": "七零九零",
+    "7080": "七零八零",
+    "7070": "七零七零",
+    "7060": "七零六零",
+    "7050": "七零五零",
+    
+    "6090": "六零九零",
+    "6080": "六零八零",
+    "6070": "六零七零",
+    "6060": "六零六零",
+    "6050": "六零五零",
+   
+    "5090": "五零九零",
+    "5080": "五零八零",
+    "5070": "五零七零",
+    "5060": "五零六零",
+    "5050": "五零五零",
+    
+    "4090": "四零九零",
+    "4080": "四零八零",
+    "4070": "四零七零",
+    "4060": "四零六零",
+    "4050": "四零五零",
+    
+    "3090": "三零九零",
+    "3080": "三零八零",
+    "3070": "三零七零",
+    "3060": "三零六零",
+    "3050": "三零五零",
+    
+    "2080": "二零八零",
+    "2070": "二零七零",
+    "2060": "二零六零",
+    "2050": "二零五零",
+    
+    "1080": "一零八零",
+    "1070": "一零七零",
+    "1060": "一零六零",
+    "1050": "一零五零",
+    # Add more mappings here as needed
+}
+
+def preprocess_text_for_tts(text):
+    """Replace specific terms in the text to improve TTS pronunciation."""
+    for term, replacement in TERM_REPLACEMENTS.items():
+        text = text.replace(term, replacement)
+    return text
+
 def check_lang(text_lang, prompt_lang):
     # only support zh and en
     if any(lang in text_lang.lower() for lang in ['zh', 'cn', '中文', 'chinese']):
@@ -30,8 +125,11 @@ def check_lang(text_lang, prompt_lang):
 def cosyvoice_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, prompt_text):
     current_dir = Path.cwd()
     
+    # Preprocess the input text
+    processed_text = preprocess_text_for_tts(text)
+    
     payload = {
-        'text': text,
+        'text': processed_text,
         # 'role': "中文女",
         # # role: '中文女', '中文男', '日语男', '粤语女', '英文女', '英文男', '韩语女'
         'reference_audio': str('./asset/kunkunpro_全民制作人们大家好，我是练习时长两年半的个人练习生蔡徐坤.wav'),
@@ -48,7 +146,9 @@ def cosyvoice_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, promp
     
     print("Requesting TTS...", payload)
 
-    response = requests.post('http://127.0.0.1:9233/clone_eq', data=payload, timeout=3600)
+    # response = requests.post('http://10.19.233.185:9233/clone_eq', data=payload, timeout=3600)
+    # response = requests.post('http://127.0.0.1:9233/clone_eq', data=payload, timeout=3600)
+    response = requests.post('http://192.168.28.89:9233/clone_eq', data=payload, timeout=3600)
     if response.status_code == 200:
         return save_audio(response, save_path, current_dir)
     else:
@@ -56,7 +156,7 @@ def cosyvoice_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, promp
         return False
 
 def cosy_voice_tts_for_videolingo(text, save_as, number, task_df):
-    start_gpt_sovits_server()
+    # start_gpt_sovits_server()
     TARGET_LANGUAGE = load_key("target_language")
     WHISPER_LANGUAGE = load_key("whisper.language")
     sovits_set = load_key("gpt_sovits")

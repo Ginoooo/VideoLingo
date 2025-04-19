@@ -241,7 +241,7 @@ def replace_in_subtitle_files():
 
             # Process only the text content
             text_content = ' '.join(text_lines)
-            text_content = replace_non_tag_text(text_content)  # 使用新方法替换
+            # text_content = replace_non_tag_text(text_content)  # 使用新方法替换
             # for key, value in REPLACEMENTS.items():
             #     pattern = re.compile(r'\b' + re.escape(key) + r'\b', flags=re.IGNORECASE)
             #     text_content = pattern.sub(value, text_content)

@@ -174,3 +174,4 @@ config.yaml
 runtime/
 dev/
 installer_files/
+config.yaml
