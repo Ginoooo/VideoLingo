@@ -6,7 +6,7 @@ display_language: "zh-CN"
 
 # API settings
 api:
-  key: 'sk-skjpunvfzsnopvxzxwrpykkhvbspaqpdzviefpqfjaapqywo'
+  key: ''
   base_url: 'https://api.siliconflow.cn/'
   model: 'deepseek-ai/DeepSeek-V3'
 
