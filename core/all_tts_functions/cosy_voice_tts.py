@@ -147,8 +147,7 @@ def cosyvoice_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, promp
     print("Requesting TTS...", payload)
 
     # response = requests.post('http://10.19.233.185:9233/clone_eq', data=payload, timeout=3600)
-    # response = requests.post('http://127.0.0.1:9233/clone_eq', data=payload, timeout=3600)
-    response = requests.post('http://192.168.28.89:9233/clone_eq', data=payload, timeout=3600)
+    response = requests.post('http://127.0.0.1:9233/clone_eq', data=payload, timeout=3600)
     if response.status_code == 200:
         return save_audio(response, save_path, current_dir)
     else:

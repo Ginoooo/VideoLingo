@@ -64,8 +64,9 @@ def merge_video_audio():
     video = cv2.VideoCapture(VIDEO_FILE)
     TARGET_WIDTH = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     TARGET_HEIGHT = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    TARGET_BITRATE = int(video.get(cv2.CAP_PROP_BITRATE))
     video.release()
-    rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}[/bold green]")
+    rprint(f"[bold green]Video resolution: {TARGET_WIDTH}x{TARGET_HEIGHT}BitRate:{TARGET_BITRATE}[/bold green]")
     
     subtitle_filter = (
         f"subtitles={DUB_SUB_FILE}:force_style='FontSize={TRANS_FONT_SIZE},"
@@ -82,10 +83,15 @@ def merge_video_audio():
         f'{subtitle_filter}[v];'
         f'[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[a]'
     ]
+    
 
     if check_gpu_available():
         rprint("[bold green]Using GPU acceleration...[/bold green]")
-        cmd.extend(['-map', '[v]', '-map', '[a]', '-c:v', 'h264_nvenc'])
+        # bitrate = f'{TARGET_BITRATE}k'
+        # https://getquicker.net/KC/Kb/Article/1100
+        # https://trac.ffmpeg.org/wiki/Encode/H.264#NvEnc
+        # cmd.extend(['-map', '[v]', '-map', '[a]', '-crf', '18', '-tune', 'hq', '-preset', 'slow', '-rc', 'constqp', '-c:v', 'h264_nvenc'])
+        cmd.extend(['-map', '[v]', '-map', '[a]', '-preset', 'slow','-rc', 'constqp','-c:v', 'h264_nvenc'])
     else:
         cmd.extend(['-map', '[v]', '-map', '[a]'])
     

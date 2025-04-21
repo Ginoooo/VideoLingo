@@ -108,6 +108,7 @@ python install.py
 3. Start the application
 
 ```bash
+set HTTPS_PROXY=http://127.0.0.1:10809
 streamlit run st.py
 ```
 
