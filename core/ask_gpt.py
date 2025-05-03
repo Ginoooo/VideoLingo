@@ -31,7 +31,6 @@ def save_log(model, prompt, response, log_title = 'default', message = None):
         json.dump(logs, f, ensure_ascii=False, indent=4)
         
 def check_ask_gpt_history(prompt, model, log_title):
-    # check if the prompt has been asked before
     if not os.path.exists(LOG_FOLDER):
         return False
     file_path = os.path.join(LOG_FOLDER, f"{log_title}.json")
@@ -44,11 +43,9 @@ def check_ask_gpt_history(prompt, model, log_title):
     return False
 
 def fix_base_url(base_url):
-    # huoshan
     if 'ark' in base_url:
         base_url = "https://ark.cn-beijing.volces.com/api/v3"
         return base_url
-    # general
     if 'v1' not in base_url:
         base_url = base_url.strip('/') + '/v1'
     return base_url
@@ -56,18 +53,26 @@ def fix_base_url(base_url):
 def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
     api_set = load_key("api")
     llm_support_json = load_key("llm_support_json")
+
+    if isinstance(api_set["key"], list):
+        keys = api_set["key"]
+        current_key_index = getattr(ask_gpt, "_current_key_index", 0)
+        api_key = keys[current_key_index]
+    else:
+        api_key = api_set["key"]
     with LOCK:
         history_response = check_ask_gpt_history(prompt, api_set["model"], log_title)
         if history_response:
             return history_response
-    
-    if not api_set["key"]:
+
+    if not api_key:
         raise ValueError(f"⚠️API_KEY is missing")
     
+    print("api:", api_key)
     messages = [{"role": "user", "content": prompt}]
     
     base_url = fix_base_url(api_set["base_url"])
-    client = OpenAI(api_key=api_set["key"], base_url=base_url)
+    client = OpenAI(api_key=api_key, base_url=base_url)
     response_format = {"type": "json_object"} if response_json and api_set["model"] in llm_support_json else None
 
     max_retries = 3
@@ -85,15 +90,14 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
             if response_json:
                 try:
                     response_data = json_repair.loads(response.choices[0].message.content)
-                    
-                    # check if the response is valid, otherwise save the log and raise error and retry
+
                     if valid_def:
                         valid_response = valid_def(response_data)
                         if valid_response['status'] != 'success':
                             save_log(api_set["model"], prompt, response_data, log_title="error", message=valid_response['message'])
                             raise ValueError(f"❎ API response error: {valid_response['message']}")
-                        
-                    break  # Successfully accessed and parsed, break the loop
+
+                    break
                 except Exception as e:
                     response_data = response.choices[0].message.content
                     print(f"❎ json_repair parsing failed. Retrying: '''{response_data}'''")
@@ -102,8 +106,8 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
                         raise Exception(f"JSON parsing still failed after {max_retries} attempts: {e}\n Please check your network connection or API key or `output/gpt_log/error.json` to debug.")
             else:
                 response_data = response.choices[0].message.content
-                break  # Non-JSON format, break the loop directly
-                
+                break
+
         except Exception as e:
             if attempt < max_retries - 1:
                 if isinstance(e, RequestException):

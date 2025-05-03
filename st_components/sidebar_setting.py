@@ -23,7 +23,7 @@ def page_setting():
         st.rerun()
 
     with st.expander(t("LLM Configuration"), expanded=True):
-        config_input(t("API_KEY"), "api.key")
+        # config_input(t("API_KEY"), "api.key")
         config_input(t("BASE_URL"), "api.base_url", help=t("Openai format, will add /v1/chat/completions automatically"))
         
         c1, c2 = st.columns([4, 1])

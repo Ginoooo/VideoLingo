@@ -132,8 +132,9 @@ def cosyvoice_tts(text, text_lang, save_path, ref_audio_path, prompt_lang, promp
         'text': processed_text,
         # 'role': "中文女",
         # # role: '中文女', '中文男', '日语男', '粤语女', '英文女', '英文男', '韩语女'
-        'reference_audio': str('./asset/kunkunpro_全民制作人们大家好，我是练习时长两年半的个人练习生蔡徐坤.wav'),
-        'reference_text': prompt_text,
+        # 'reference_audio': str('./asset/kunkunpro_全民制作人们大家好，我是练习时长两年半的个人练习生蔡徐坤.wav'),
+        'reference_audio': str('./asset/maikou_我们会制作一个功能强大的背包系统，他也要负责交易，还有建造.wav'),
+        'reference_text': "我们会制作一个功能强大的背包系统，他也要负责交易，还有建造",
     }
 
     def save_audio(response, save_path, current_dir):

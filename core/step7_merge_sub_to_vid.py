@@ -92,21 +92,21 @@ def merge_subtitles_to_video():
     
     ffmpeg_cmd.extend(['-y', OUTPUT_VIDEO])
 
-    # print(f"\n✅ Done! 跳过合成字幕视频文件") 
-    print("🎬 Start merging subtitles to video...")
-    start_time = time.time()
-    process = subprocess.Popen(ffmpeg_cmd)
+    print(f"\n✅ Done! 跳过合成字幕视频文件") 
+    # print("🎬 Start merging subtitles to video...")
+    # start_time = time.time()
+    # process = subprocess.Popen(ffmpeg_cmd)
 
-    try:
-        process.wait()
-        if process.returncode == 0:
-            print(f"\n✅ Done! Time taken: {time.time() - start_time:.2f} seconds")
-        else:
-            print("\n❌ FFmpeg execution error")
-    except Exception as e:
-        print(f"\n❌ Error occurred: {e}")
-        if process.poll() is None:
-            process.kill()
+    # try:
+    #     process.wait()
+    #     if process.returncode == 0:
+    #         print(f"\n✅ Done! Time taken: {time.time() - start_time:.2f} seconds")
+    #     else:
+    #         print("\n❌ FFmpeg execution error")
+    # except Exception as e:
+    #     print(f"\n❌ Error occurred: {e}")
+    #     if process.poll() is None:
+    #         process.kill()
 
 if __name__ == "__main__":
     merge_subtitles_to_video()
