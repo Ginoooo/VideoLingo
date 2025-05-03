@@ -58,6 +58,7 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
         keys = api_set["key"]
         current_key_index = getattr(ask_gpt, "_current_key_index", 0)
         api_key = keys[current_key_index]
+        ask_gpt._current_key_index = (current_key_index + 1) % len(keys)
     else:
         api_key = api_set["key"]
     with LOCK:
@@ -84,7 +85,7 @@ def ask_gpt(prompt, response_json=True, valid_def=None, log_title='default'):
             }
             if response_format is not None:
                 completion_args["response_format"] = response_format
-                
+            print(f"Using API key index: {current_key_index}") if 'current_key_index' in locals() else None
             response = client.chat.completions.create(**completion_args)
             
             if response_json:
