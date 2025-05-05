@@ -6,6 +6,7 @@ import subprocess
 import socket
 import time
 import requests
+import re
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from core.config_utils import load_key
 
@@ -117,6 +118,9 @@ def preprocess_text_for_tts(text):
     """Replace specific terms in the text to improve TTS pronunciation."""
     for term, replacement in TERM_REPLACEMENTS.items():
         text = text.replace(term, replacement)
+
+    text = re.sub(r'(\d+)-(\d+)', r'\1、\2', text)
+
     return text
 
 def check_lang(text_lang, prompt_lang):
@@ -266,7 +270,6 @@ def start_gpt_sovits_server():
     # Change to the GPT-SoVITS-v2 directory
     os.chdir(gpt_sovits_dir)
 
-    # Start the GPT-SoVITS server
     if sys.platform == "win32":
         cmd = [
             "runtime\\python.exe",
